@@ -1,0 +1,35 @@
+{
+    "expo": {
+        "name": "Mesa247 Mobile",
+        "slug": "mesa247-mobile",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/icon.png",
+        "userInterfaceStyle": "light",
+        "splash": {
+            "image": "./assets/splash.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#ffffff"
+        },
+        "assetBundlePatterns": ["**/*"],
+        "ios": {
+            "supportsTablet": true,
+            "bundleIdentifier": "com.mesa247.mobile"
+        },
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/adaptive-icon.png",
+                "backgroundColor": "#ffffff"
+            },
+            "package": "com.mesa247.mobile"
+        },
+        "web": {
+            "favicon": "./assets/favicon.png"
+        },
+        "scheme": "mesa247",
+        "plugins": ["expo-router"],
+        "experiments": {
+            "typedRoutes": true
+        }
+    }
+}
