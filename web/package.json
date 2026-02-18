@@ -15,6 +15,7 @@
         "react-dom": "^18.3.1",
         "react-router-dom": "^6.22.3",
         "@tanstack/react-query": "^5.28.4",
+        "@tanstack/react-query-devtools": "^5.28.4",
         "jotai": "^2.7.2",
         "react-hook-form": "^7.51.1",
         "@hookform/resolvers": "^3.3.4",
@@ -23,9 +24,12 @@
         "clsx": "^2.1.0",
         "tailwind-merge": "^2.2.2",
         "lucide-react": "^0.356.0",
+        "@radix-ui/react-slot": "^1.0.2",
         "@radix-ui/react-select": "^2.0.0",
         "@radix-ui/react-slider": "^1.1.2",
-        "@radix-ui/react-separator": "^1.0.3"
+        "@radix-ui/react-separator": "^1.0.3",
+        "@radix-ui/react-switch": "^1.0.3",
+        "@radix-ui/react-label": "^2.0.2"
     },
     "devDependencies": {
         "@types/react": "^18.2.66",
