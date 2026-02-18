@@ -24,9 +24,6 @@ export interface EventProperties {
     [key: string]: string | number | boolean | string[] | undefined;
 }
 
-/**
- * Track an analytics event
- */
 export function track(event: TrackingEvent, properties?: EventProperties): void {
     const timestamp = new Date().toISOString();
     const eventData = {
@@ -36,34 +33,19 @@ export function track(event: TrackingEvent, properties?: EventProperties): void 
         sessionId: getSessionId(),
     };
 
-    // Log to console in development
-    if (import.meta.env.DEV) {
-        console.log('📊 [Tracking]', eventData);
-    }
+    if (import.meta.env.DEV) console.log('[Tracking]', eventData);
 
-    // In production, send to analytics service
-    // Example integrations:
-    // - window.analytics?.track(event, properties) // Segment
-    // - window.gtag?.('event', event, properties) // GA4
-    // - fetch('/api/tracking', { method: 'POST', body: JSON.stringify(eventData) })
-
-    // Store events in localStorage for demo purposes
     try {
         const storedEvents = JSON.parse(localStorage.getItem('tracking_events') || '[]');
         storedEvents.push(eventData);
-        // Keep only last 100 events
-        if (storedEvents.length > 100) {
-            storedEvents.shift();
-        }
+        if (storedEvents.length > 100) storedEvents.shift();
+
         localStorage.setItem('tracking_events', JSON.stringify(storedEvents));
     } catch (error) {
         console.error('Failed to store tracking event:', error);
     }
 }
 
-/**
- * Track page view
- */
 export function trackPageView(pageName: string, properties?: EventProperties): void {
     track('PageLoaded', {
         page: pageName,
@@ -71,9 +53,6 @@ export function trackPageView(pageName: string, properties?: EventProperties): v
     });
 }
 
-/**
- * Track search performed
- */
 export function trackSearchPerformed(query: string, resultsCount: number): void {
     track('SearchPerformed', {
         query,
@@ -82,9 +61,6 @@ export function trackSearchPerformed(query: string, resultsCount: number): void 
     });
 }
 
-/**
- * Track filter applied
- */
 export function trackFilterApplied(
     filterType: string,
     filterValue: string | string[] | number | boolean
@@ -95,18 +71,12 @@ export function trackFilterApplied(
     });
 }
 
-/**
- * Track sort changed
- */
 export function trackSortChanged(sortBy: string): void {
     track('SortChanged', {
         sort_by: sortBy,
     });
 }
 
-/**
- * Track restaurant clicked
- */
 export function trackRestaurantClicked(restaurantId: string, position: number): void {
     track('RestaurantClicked', {
         restaurant_id: restaurantId,
@@ -114,9 +84,6 @@ export function trackRestaurantClicked(restaurantId: string, position: number): 
     });
 }
 
-/**
- * Track load more clicked
- */
 export function trackLoadMoreClicked(currentPage: number, totalResults: number): void {
     track('LoadMoreClicked', {
         current_page: currentPage,
@@ -124,9 +91,19 @@ export function trackLoadMoreClicked(currentPage: number, totalResults: number):
     });
 }
 
-/**
- * Get or create a session ID
- */
+export function trackRestaurantViewed(
+    restaurantId: string,
+    restaurantName: string,
+    category: string
+): void {
+    track('RestaurantViewed', {
+        restaurant_id: restaurantId,
+        restaurant_name: restaurantName,
+        category,
+        source: 'detail_page',
+    });
+}
+
 function getSessionId(): string {
     const SESSION_KEY = 'tracking_session_id';
 
@@ -140,9 +117,6 @@ function getSessionId(): string {
     return sessionId;
 }
 
-/**
- * Get all tracked events (for debugging)
- */
 export function getTrackedEvents(): unknown[] {
     try {
         return JSON.parse(localStorage.getItem('tracking_events') || '[]');
@@ -151,9 +125,6 @@ export function getTrackedEvents(): unknown[] {
     }
 }
 
-/**
- * Clear tracked events (for debugging)
- */
 export function clearTrackedEvents(): void {
     localStorage.removeItem('tracking_events');
 }
