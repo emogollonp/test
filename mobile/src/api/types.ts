@@ -64,6 +64,8 @@ export type SearchFilters = {
     openNow?: boolean;
 };
 
+export type RestaurantFilters = SearchFilters;
+
 export type SortOption = 'rating_desc' | 'distance_asc' | 'price_asc';
 
 export type SearchParams = {

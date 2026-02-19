@@ -139,6 +139,27 @@ pnpm clean            # Limpia builds y caches
 - Lazy loading de imágenes
 - Persistencia de estado con AsyncStorage
 
+## Performance & Scalability
+
+### Current Optimizations
+
+- **Query Key Factory**: Hierarchical structure for efficient cache management
+- **Smart Caching**: Differentiated staleTime/gcTime (5/10/15min) based on data volatility
+- **Smart Prefetching**: Hover/focus-triggered with cache awareness to prevent redundant fetches
+- **Component Memoization**: Strategic React.memo + useCallback for 60 FPS scroll
+- **Granular Invalidation**: Targeted cache updates without full refetch
+
+### Scaling to 10k+ Restaurants
+
+For details on future optimizations (virtual scrolling, intersection observer prefetch, multi-tenant context, memory management), see **[web/docs/PERFORMANCE.md](web/docs/PERFORMANCE.md)**.
+
+**Performance targets**:
+
+- Initial load: < 300ms
+- Card click → navigation: < 50ms
+- 60 FPS smooth scrolling
+- < 50MB memory usage at scale
+
 ## Testing
 
 Ver [docs/testing-plan.md](docs/testing-plan.md) para el plan completo de testing.
