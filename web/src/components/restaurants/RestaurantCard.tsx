@@ -4,16 +4,32 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Restaurant } from '@/api/types';
 import { cn } from '@/lib/utils';
+import { usePrefetchRestaurant } from '@/hooks/useRestaurants';
 
 interface RestaurantCardProps {
     restaurant: Restaurant;
     onClick?: () => void;
+    onPrefetch?: (id: string) => void;
     className?: string;
 }
 
 export const RestaurantCard = React.memo<RestaurantCardProps>(
-    ({ restaurant, onClick, className }) => {
-        const priceSymbols = '$'.repeat(restaurant.priceLevel);
+    ({ restaurant, onClick, onPrefetch, className }) => {
+        const prefetchRestaurant = usePrefetchRestaurant();
+
+        const priceSymbols = React.useMemo(
+            () => '$'.repeat(restaurant.priceLevel),
+            [restaurant.priceLevel]
+        );
+
+        const handleMouseEnter = React.useCallback(() => {
+            prefetchRestaurant(restaurant.id);
+            onPrefetch?.(restaurant.id);
+        }, [prefetchRestaurant, restaurant.id, onPrefetch]);
+
+        const handleFocus = React.useCallback(() => {
+            prefetchRestaurant(restaurant.id);
+        }, [prefetchRestaurant, restaurant.id]);
 
         return (
             <Card
@@ -23,6 +39,11 @@ export const RestaurantCard = React.memo<RestaurantCardProps>(
                     className
                 )}
                 onClick={onClick}
+                onMouseEnter={handleMouseEnter}
+                onFocus={handleFocus}
+                tabIndex={0}
+                role="button"
+                aria-label={`View details for ${restaurant.name}`}
             >
                 <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
                     <img
