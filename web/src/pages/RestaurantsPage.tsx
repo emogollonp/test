@@ -7,7 +7,8 @@ import { MemoizedRestaurantList } from '@/components/restaurants/RestaurantList'
 import { useRestaurantsInfinite } from '@/hooks/useRestaurants';
 import { useDebounce } from '@/hooks/useDebounce';
 import type { SearchFilters, SortOption, RestaurantCategory, Restaurant } from '@/api/types';
-import { trackPageView, trackSearchPerformed } from '@/lib/tracking';
+import { screen } from '@/lib/tracking/index';
+import { trackSearchPerformed, trackRestaurantClicked } from '@/lib/tracking/helpers';
 
 export const RestaurantsPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -68,9 +69,13 @@ export const RestaurantsPage: React.FC = () => {
     React.useEffect(() => {
         if (debouncedSearchQuery) {
             const totalResults = data?.pages[0]?.total || 0;
-            trackSearchPerformed(debouncedSearchQuery, totalResults);
+            trackSearchPerformed(
+                debouncedSearchQuery,
+                totalResults,
+                Object.values(filters).some((v) => v !== undefined)
+            );
         }
-    }, [debouncedSearchQuery, data]);
+    }, [debouncedSearchQuery, data, filters]);
 
     const allRestaurants = React.useMemo(() => {
         return data?.pages.flatMap((page) => page.items) || [];
@@ -106,14 +111,26 @@ export const RestaurantsPage: React.FC = () => {
     }, [setSearchParams]);
 
     const handleRestaurantClick = React.useCallback(
-        (restaurant: Restaurant) => {
+        (restaurant: Restaurant, position: number) => {
+            trackRestaurantClicked(
+                restaurant.id,
+                restaurant.name,
+                position,
+                debouncedSearchQuery ? 'search' : 'list'
+            );
             navigate(`/restaurant/${restaurant.id}`);
         },
-        [navigate]
+        [navigate, debouncedSearchQuery]
     );
 
     React.useEffect(() => {
-        trackPageView('restaurants_list');
+        screen({
+            screenName: 'RestaurantList',
+            properties: {
+                pageName: 'restaurants_list',
+                path: '/restaurants',
+            },
+        });
     }, []);
 
     return (

@@ -10,11 +10,12 @@ import { FilterModal } from '../src/components/filters/FilterModal';
 import { useRestaurantsInfinite } from '../src/hooks/useRestaurants';
 import { useDebounce } from '../src/hooks/useDebounce';
 import { filterModalVisibleAtom } from '../src/store/atoms';
+import { screen } from '../src/lib/tracking/index';
 import {
     trackSearchPerformed,
     trackFilterApplied,
-    trackRestaurantViewed,
-} from '../src/lib/tracking';
+    trackRestaurantClicked,
+} from '../src/lib/tracking/helpers';
 import type {
     RestaurantFilters,
     SortOption,
@@ -74,12 +75,25 @@ export default function HomeScreen() {
         });
 
     React.useEffect(() => {
+        screen({
+            screenName: 'RestaurantList',
+            properties: {
+                pageName: 'home',
+            },
+        });
+    }, []);
+
+    // Track search performed
+    React.useEffect(() => {
         const infiniteData = data as unknown as InfiniteData | undefined;
         if (debouncedQuery && infiniteData?.pages?.[0]) {
             const totalResults = infiniteData.pages[0].total || 0;
-            trackSearchPerformed(debouncedQuery, totalResults);
+            const hasFilters = Object.values(filters).some(
+                (v) => v !== undefined && (Array.isArray(v) ? v.length > 0 : true)
+            );
+            trackSearchPerformed(debouncedQuery, totalResults, hasFilters);
         }
-    }, [debouncedQuery, data]);
+    }, [debouncedQuery, data, filters]);
 
     const restaurants = React.useMemo(() => {
         const infiniteData = data as unknown as InfiniteData | undefined;
@@ -115,16 +129,28 @@ export default function HomeScreen() {
     const handleApplyFilters = React.useCallback((newFilters: RestaurantFilters) => {
         setFilters(newFilters);
 
-        if (newFilters.category) trackFilterApplied('category', newFilters.category);
-
-        if (newFilters.priceRange)
-            trackFilterApplied('priceRange', newFilters.priceRange.join('-'));
-
-        if (newFilters.minRating) trackFilterApplied('minRating', newFilters.minRating);
-
-        if (newFilters.tags) trackFilterApplied('tags', newFilters.tags);
-
-        if (newFilters.openNow) trackFilterApplied('openNow', true);
+        // Count active filters
+        let activeCount = 0;
+        if (newFilters.category && newFilters.category.length > 0) {
+            trackFilterApplied('category', newFilters.category.join(','), activeCount + 1);
+            activeCount++;
+        }
+        if (newFilters.priceRange) {
+            trackFilterApplied('price', newFilters.priceRange.join('-'), activeCount + 1);
+            activeCount++;
+        }
+        if (newFilters.minRating) {
+            trackFilterApplied('rating', newFilters.minRating, activeCount + 1);
+            activeCount++;
+        }
+        if (newFilters.tags && newFilters.tags.length > 0) {
+            trackFilterApplied('tags', newFilters.tags.join(','), activeCount + 1);
+            activeCount++;
+        }
+        if (newFilters.openNow) {
+            trackFilterApplied('openNow', true, activeCount + 1);
+            activeCount++;
+        }
     }, []);
 
     const handleLoadMore = React.useCallback(() => {
@@ -132,11 +158,11 @@ export default function HomeScreen() {
     }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     const handleRestaurantPress = React.useCallback(
-        (restaurant: Restaurant) => {
-            trackRestaurantViewed(
+        (restaurant: Restaurant, position: number) => {
+            trackRestaurantClicked(
                 restaurant.id,
                 restaurant.name,
-                restaurant.category,
+                position,
                 searchQuery ? 'search' : 'list'
             );
         },

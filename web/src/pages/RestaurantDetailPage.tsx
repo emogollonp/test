@@ -2,7 +2,8 @@ import * as React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, MapPin, DollarSign, Phone, Globe } from 'lucide-react';
 import { useRestaurant } from '@/hooks/useRestaurants';
-import { trackRestaurantViewed } from '@/lib/tracking';
+import { screen } from '@/lib/tracking/index';
+import { trackRestaurantViewed } from '@/lib/tracking/helpers';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,17 +31,30 @@ export const RestaurantDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    // Fetch restaurant data with TanStack Query
     const { data: restaurant, isLoading, error } = useRestaurant(id || '');
 
-    // Track page view
     React.useEffect(() => {
         if (restaurant) {
-            trackRestaurantViewed(restaurant.id, restaurant.name, restaurant.category);
+            screen({
+                screenName: 'RestaurantDetail',
+                properties: {
+                    pageName: 'restaurant_detail',
+                    path: `/restaurant/${restaurant.id}`,
+                    restaurantId: restaurant.id,
+                },
+            });
+
+            trackRestaurantViewed(
+                restaurant.id,
+                restaurant.name,
+                restaurant.category,
+                restaurant.rating,
+                restaurant.priceLevel,
+                'direct'
+            );
         }
     }, [restaurant]);
 
-    // Loading state
     if (isLoading) {
         return (
             <div className="container mx-auto px-4 py-8">

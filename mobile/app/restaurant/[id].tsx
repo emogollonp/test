@@ -12,7 +12,8 @@ import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { RestaurantSchedule } from '../../src/components/restaurants/RestaurantSchedule';
 import { useRestaurant } from '../../src/hooks/useRestaurants';
-import { trackRestaurantViewed } from '../../src/lib/tracking';
+import { screen } from '../../src/lib/tracking/index';
+import { trackRestaurantViewed } from '../../src/lib/tracking/helpers';
 
 /**
  * Restaurant Detail Screen
@@ -36,7 +37,20 @@ export default function RestaurantDetailScreen() {
 
     React.useEffect(() => {
         if (restaurant) {
-            trackRestaurantViewed(restaurant.id, restaurant.name, restaurant.category, 'direct');
+            screen({
+                screenName: 'RestaurantDetail',
+                properties: {
+                    restaurantId: restaurant.id,
+                },
+            });
+            trackRestaurantViewed(
+                restaurant.id,
+                restaurant.name,
+                restaurant.category,
+                restaurant.rating,
+                restaurant.priceLevel,
+                'direct'
+            );
         }
     }, [restaurant]);
 

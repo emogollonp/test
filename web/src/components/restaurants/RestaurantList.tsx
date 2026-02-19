@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RestaurantCard } from './RestaurantCard';
 import type { Restaurant } from '@/api/types';
-import { trackRestaurantClicked, trackLoadMoreClicked } from '@/lib/tracking';
+import { trackLoadMoreClicked } from '@/lib/tracking/helpers';
 
 interface RestaurantListProps {
     restaurants: Restaurant[];
@@ -28,7 +28,6 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({
 }) => {
     const handleRestaurantClick = React.useCallback(
         (restaurant: Restaurant, index: number) => {
-            trackRestaurantClicked(restaurant.id, index);
             onRestaurantClick?.(restaurant, index);
         },
         [onRestaurantClick]
@@ -36,10 +35,10 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({
 
     const handleLoadMore = React.useCallback(() => {
         if (hasMore && onLoadMore && currentPage) {
-            trackLoadMoreClicked(currentPage, totalCount || 0);
+            trackLoadMoreClicked(currentPage, totalCount || 0, restaurants.length);
             onLoadMore();
         }
-    }, [hasMore, onLoadMore, currentPage, totalCount]);
+    }, [hasMore, onLoadMore, currentPage, totalCount, restaurants.length]);
 
     if (!isLoading && restaurants.length === 0) {
         return (

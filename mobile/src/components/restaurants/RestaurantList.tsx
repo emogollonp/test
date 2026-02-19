@@ -18,7 +18,7 @@ interface RestaurantListProps {
     isLoadingMore?: boolean;
     hasMore?: boolean;
     onLoadMore?: () => void;
-    onRestaurantPress?: (restaurant: Restaurant) => void;
+    onRestaurantPress?: (restaurant: Restaurant, position: number) => void;
     emptyMessage?: string;
 }
 
@@ -63,8 +63,8 @@ export const RestaurantList = React.memo<RestaurantListProps>(
         const prefetchRestaurant = usePrefetchRestaurant();
 
         const handleRestaurantPress = React.useCallback(
-            (restaurant: Restaurant) => {
-                onRestaurantPress?.(restaurant);
+            (restaurant: Restaurant, position: number) => {
+                onRestaurantPress?.(restaurant, position);
                 router.push(`/restaurant/${restaurant.id}`);
             },
             [router, onRestaurantPress]
@@ -78,10 +78,10 @@ export const RestaurantList = React.memo<RestaurantListProps>(
         );
 
         const renderItem: ListRenderItem<Restaurant> = React.useCallback(
-            ({ item }) => (
+            ({ item, index }) => (
                 <RestaurantCard
                     restaurant={item}
-                    onPress={() => handleRestaurantPress(item)}
+                    onPress={() => handleRestaurantPress(item, index)}
                     onPrefetch={handlePrefetch}
                 />
             ),
