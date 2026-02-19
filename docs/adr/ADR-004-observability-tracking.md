@@ -1,8 +1,9 @@
-# ADR-003: Observabilidad y Tracking
+# ADR-004: Observabilidad y Tracking (Legacy)
 
-**Estado:** Aceptado  
+**Estado:** Superseded by ADR-005  
 **Fecha:** 2026-02-18  
 **Autores:** Eric Mogollon
+**Nota:** Este documento ha sido reemplazado por ADR-005 para separar tracking de telemetry
 
 ## Contexto
 

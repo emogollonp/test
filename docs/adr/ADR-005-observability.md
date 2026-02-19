@@ -3,7 +3,7 @@
 **Date**: 2026-02-18  
 **Status**: Accepted  
 **Decision Makers**: Engineering Team  
-**Related**: ADR-002 (Tracking Architecture), ADR-003 (Feature Flags)
+**Related**: ADR-002 (State Management), ADR-003 (Feature Flags), ADR-004 (Tracking - Legacy)
 
 ## Context
 

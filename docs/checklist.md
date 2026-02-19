@@ -1,6 +1,6 @@
 # Checklist de Implementación
 
-## ✅ Completado
+## Completado
 
 ### Setup Inicial
 
@@ -16,7 +16,9 @@
 - [x] README.md root completo
 - [x] ADR-001: Estructura del proyecto
 - [x] ADR-002: State management y caching
-- [x] ADR-003: Observabilidad y tracking
+- [x] ADR-003: Feature Flags y Experiments
+- [x] ADR-004: Observabilidad y Tracking (Legacy - Superseded)
+- [x] ADR-005: Telemetry y Observability
 - [x] diagrams.md con Mermaid
 - [x] testing-plan.md
 - [x] checklist.md (este archivo)
@@ -40,96 +42,96 @@
 - [x] Jotai + AsyncStorage
 - [x] app.json configurado
 
-## 🚧 En Progreso / Pendiente
+## En Progreso / Pendiente
 
 ### Fake API
 
-- [ ] JSON con 20+ restaurantes
-- [ ] Campos: tenantId, country, currency, timezone
-- [ ] Simulación de latencia (200-600ms)
-- [ ] Simulación de errores (5%)
-- [ ] Filtros: category, price range, rating, tags, openNow
-- [ ] Ordenamiento: rating desc, price asc, distance fake
-- [ ] Paginación
-- [ ] Search query con fuzzy matching
+- [x] JSON con 20+ restaurantes
+- [x] Campos: tenantId, country, currency, timezone
+- [x] Simulación de latencia (200-600ms)
+- [x] Simulación de errores (5%)
+- [x] Filtros: category, price range, rating, tags, openNow
+- [x] Ordenamiento: rating desc, price asc, distance fake
+- [x] Paginación
+- [x] Search query con fuzzy matching
 
 ### Web - Features
 
-- [ ] Página Home con listado
-- [ ] RestaurantCard (variantes A/B)
-- [ ] SearchBar con debounce
-- [ ] Componente de filtros complejos
-- [ ] Paginación (Load More o clásica)
-- [ ] Página de detalle (`/restaurant/:id`)
-- [ ] Error Boundary
-- [ ] Loading states
-- [ ] Empty states
+- [x] Página Home con listado
+- [x] RestaurantCard (variantes A/B)
+- [x] SearchBar con debounce
+- [x] Componente de filtros complejos
+- [x] Paginación (Load More o clásica)
+- [x] Página de detalle (`/restaurant/:id`)
+- [x] Error Boundary
+- [x] Loading states
+- [x] Empty states
 
 ### Mobile - Features
 
-- [ ] Pantalla de listado (`/`)
-- [ ] RestaurantCard (variantes A/B)
-- [ ] SearchBar
-- [ ] FilterModal (bottom sheet)
-- [ ] FlatList optimizado (keyExtractor, getItemLayout)
-- [ ] Pantalla de detalle (`/restaurant/[id]`)
-- [ ] Pull to refresh
-- [ ] Loading states
-- [ ] Empty states
+- [x] Pantalla de listado (`/`)
+- [x] RestaurantCard (variantes A/B)
+- [x] SearchBar
+- [x] FilterModal (bottom sheet)
+- [x] FlatList optimizado (keyExtractor, getItemLayout)
+- [x] Pantalla de detalle (`/restaurant/[id]`)
+- [x] Pull to refresh
+- [x] Loading states
+- [x] Empty states
 
 ### State Management
 
-- [ ] Query keys bien diseñados
-- [ ] Atoms de Jotai para filtros
-- [ ] URL state sync (web)
-- [ ] AsyncStorage persistence (mobile)
-- [ ] Invalidación de queries correcta
+- [x] Query keys bien diseñados
+- [x] Atoms de Jotai para filtros
+- [x] URL state sync (web)
+- [x] AsyncStorage persistence (mobile)
+- [x] Invalidación de queries correcta
 
 ### Performance
 
-- [ ] Debounce en search (300ms)
-- [ ] React.memo en componentes costosos
-- [ ] useMemo para cálculos complejos
-- [ ] Virtualización si listas > 100 items
-- [ ] Image lazy loading (mobile)
-- [ ] Query staleTime optimizado
+- [x] Debounce en search (300ms)
+- [x] React.memo en componentes costosos
+- [x] useMemo para cálculos complejos
+- [x] Virtualización si listas > 100 items
+- [x] Image lazy loading (mobile)
+- [x] Query staleTime optimizado
 
 ### Tracking
 
-- [ ] Módulo `tracking.ts`
-- [ ] Evento: SearchPerformed
-- [ ] Evento: FilterApplied
-- [ ] Evento: RestaurantViewed
-- [ ] Evento: RestaurantCardClicked
-- [ ] Evento: ExperimentExposed
-- [ ] track(), identify(), screen() implementados
+- [x] Módulo `tracking.ts`
+- [x] Evento: SearchPerformed
+- [x] Evento: FilterApplied
+- [x] Evento: RestaurantViewed
+- [x] Evento: RestaurantCardClicked
+- [x] Evento: ExperimentExposed
+- [x] track(), identify(), screen() implementados
 
 ### Experimentos A/B
 
-- [ ] Sistema de asignación random
-- [ ] Persistencia localStorage (web)
-- [ ] Persistencia AsyncStorage (mobile)
-- [ ] Experimento: card compacta vs extendida
-- [ ] Tracking de exposure
+- [x] Sistema de asignación random
+- [x] Persistencia localStorage (web)
+- [x] Persistencia AsyncStorage (mobile)
+- [x] Experimento: card compacta vs extendida
+- [x] Tracking de exposure
 
 ### Observabilidad
 
-- [ ] Módulo observability/logger.ts
-- [ ] Módulo observability/metrics.ts
-- [ ] Módulo observability/errors.ts
-- [ ] Error boundaries con reporte
-- [ ] Métricas de latencia API
-- [ ] Logs estructurados
+- [x] Módulo observability/logger.ts
+- [x] Módulo observability/metrics.ts
+- [x] Módulo observability/errors.ts
+- [x] Error boundaries con reporte
+- [x] Métricas de latencia API
+- [x] Logs estructurados
 
 ### Multi-tenant/Multi-país (Modelado)
 
-- [ ] Datos JSON incluyen: tenantId, country, currency, timezone
+- [x] Datos JSON incluyen: tenantId, country, currency, timezone
 - [ ] Documentación de cómo parametrizar tenant
 - [ ] Propuesta de formateo de moneda (Intl.NumberFormat)
 - [ ] Propuesta de formateo de fechas (date-fns-tz)
 - [ ] Propuesta de i18n (estructura, namespaces)
 
-## ❌ No Implementado (Fuera de Scope)
+## No Implementado (Fuera de Scope)
 
 ### Testing
 
@@ -174,7 +176,7 @@
 - [ ] Bundle size tracking
 - [ ] Performance budgets
 
-## 🔮 Próximos Pasos (Si fuera Producción)
+## Próximos Pasos (Si fuera Producción)
 
 ### Corto Plazo (Sprint 1-2)
 
@@ -202,7 +204,7 @@
 5. Progressive Web App (PWA) para web
 6. Offline-first con Service Workers
 
-## 📊 Métricas de Éxito
+## Métricas de Éxito
 
 ### Técnicas
 
@@ -228,7 +230,7 @@
 - [ ] Testing plan es accionable
 - [ ] AI log muestra uso responsable de AI
 
-## 🎯 Objetivos del Proyecto (Meta)
+## Objetivos del Proyecto (Meta)
 
 Este es un **MVP enfocado en arquitectura y decisiones técnicas**, no un producto completo.
 

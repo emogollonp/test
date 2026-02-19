@@ -1,7 +1,7 @@
 # ADR-003: Feature Flags and Experiments System
 
-**Date**: 2024-01-15  
-**Related**: ADR-002 (Tracking Architecture)
+**Date**: 2026-02-18  
+**Related**: ADR-002 (State Management), ADR-005 (Observability)
 
 ## Context
 
