@@ -1,5 +1,13 @@
 import * as React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import {
+    View,
+    Text,
+    Image,
+    StyleSheet,
+    TouchableOpacity,
+    Platform,
+    ActivityIndicator,
+} from 'react-native';
 import type { Restaurant } from '../../api/types';
 
 interface RestaurantCardProps {
@@ -8,26 +16,72 @@ interface RestaurantCardProps {
     onPrefetch?: (id: string) => void;
 }
 
+// Placeholder image (can be replaced with actual placeholder asset)
+const PLACEHOLDER_COLOR = '#e0e0e0';
+
 /**
  * Restaurant Card Component
  *
  * Displays restaurant summary with:
- * - Image
+ * - Image with progressive loading + error handling
  * - Name, category, description
  * - Rating, price level, distance
  * - Tags (first 3)
  * - Country and currency
  * - Open/Closed status
  *
- * Performance: Wrapped in React.memo to prevent unnecessary re-renders
+ * Performance optimizations:
+ * - React.memo prevents unnecessary re-renders
+ * - useMemo for expensive calculations (price symbols, display strings)
+ * - useCallback for event handlers
+ * - Image with loading state and error fallback
+ * - Progressive image loading (placeholder → full image)
  */
 export const RestaurantCard = React.memo<RestaurantCardProps>(
     ({ restaurant, onPress, onPrefetch }) => {
-        const priceSymbols = '$'.repeat(restaurant.priceLevel);
+        const [imageLoading, setImageLoading] = React.useState(true);
+        const [imageError, setImageError] = React.useState(false);
+
+        // Memoize expensive calculations
+        const priceSymbols = React.useMemo(
+            () => '$'.repeat(restaurant.priceLevel),
+            [restaurant.priceLevel]
+        );
+
+        const displayDistance = React.useMemo(
+            () => restaurant.distanceKm.toFixed(1),
+            [restaurant.distanceKm]
+        );
+
+        const displayRating = React.useMemo(
+            () => restaurant.rating.toFixed(1),
+            [restaurant.rating]
+        );
+
+        const visibleTags = React.useMemo(() => restaurant.tags.slice(0, 3), [restaurant.tags]);
+
+        const remainingTagsCount = React.useMemo(
+            () => Math.max(0, restaurant.tags.length - 3),
+            [restaurant.tags.length]
+        );
 
         const handlePressIn = React.useCallback(() => {
             onPrefetch?.(restaurant.id);
         }, [onPrefetch, restaurant.id]);
+
+        const handleImageLoadStart = React.useCallback(() => {
+            setImageLoading(true);
+            setImageError(false);
+        }, []);
+
+        const handleImageLoadEnd = React.useCallback(() => {
+            setImageLoading(false);
+        }, []);
+
+        const handleImageError = React.useCallback(() => {
+            setImageLoading(false);
+            setImageError(true);
+        }, []);
 
         return (
             <TouchableOpacity
@@ -37,11 +91,32 @@ export const RestaurantCard = React.memo<RestaurantCardProps>(
                 activeOpacity={0.7}
             >
                 <View style={styles.imageContainer}>
-                    <Image
-                        source={{ uri: restaurant.imageUrl }}
-                        style={styles.image}
-                        resizeMode="cover"
-                    />
+                    {imageLoading && (
+                        <View style={styles.imagePlaceholder}>
+                            <ActivityIndicator size="large" color="#007AFF" />
+                        </View>
+                    )}
+                    {imageError && (
+                        <View style={styles.imageError}>
+                            <Text style={styles.imageErrorIcon}>🍽️</Text>
+                            <Text style={styles.imageErrorText}>Image unavailable</Text>
+                        </View>
+                    )}
+                    {!imageError && (
+                        <Image
+                            source={{ uri: restaurant.imageUrl }}
+                            style={styles.image}
+                            resizeMode="cover"
+                            onLoadStart={handleImageLoadStart}
+                            onLoadEnd={handleImageLoadEnd}
+                            onError={handleImageError}
+                            {...Platform.select({
+                                ios: { cache: 'force-cache' as any },
+                                android: { cache: 'force-cache' as any },
+                            })}
+                        />
+                    )}
+
                     {!restaurant.isOpenNow && (
                         <View style={styles.closedBadge}>
                             <Text style={styles.closedBadgeText}>Closed</Text>
@@ -62,16 +137,14 @@ export const RestaurantCard = React.memo<RestaurantCardProps>(
 
                     {restaurant.tags.length > 0 && (
                         <View style={styles.tags}>
-                            {restaurant.tags.slice(0, 3).map((tag) => (
+                            {visibleTags.map((tag) => (
                                 <View key={tag} style={styles.tag}>
                                     <Text style={styles.tagText}>{tag}</Text>
                                 </View>
                             ))}
-                            {restaurant.tags.length > 3 && (
+                            {remainingTagsCount > 0 && (
                                 <View style={[styles.tag, styles.tagMore]}>
-                                    <Text style={styles.tagText}>
-                                        +{restaurant.tags.length - 3}
-                                    </Text>
+                                    <Text style={styles.tagText}>+{remainingTagsCount}</Text>
                                 </View>
                             )}
                         </View>
@@ -80,7 +153,7 @@ export const RestaurantCard = React.memo<RestaurantCardProps>(
                         <View style={styles.stats}>
                             <View style={styles.stat}>
                                 <Text style={styles.statIcon}>⭐</Text>
-                                <Text style={styles.statText}>{restaurant.rating.toFixed(1)}</Text>
+                                <Text style={styles.statText}>{displayRating}</Text>
                                 <Text style={styles.statSubtext}>({restaurant.reviewCount})</Text>
                             </View>
                             <View style={styles.stat}>
@@ -89,9 +162,7 @@ export const RestaurantCard = React.memo<RestaurantCardProps>(
                             </View>
                             <View style={styles.stat}>
                                 <Text style={styles.statIcon}>📍</Text>
-                                <Text style={styles.statText}>
-                                    {restaurant.distanceKm.toFixed(1)} km
-                                </Text>
+                                <Text style={styles.statText}>{displayDistance} km</Text>
                             </View>
                         </View>
                         <View style={styles.locale}>
@@ -138,6 +209,36 @@ const styles = StyleSheet.create({
     image: {
         height: '100%',
         width: '100%',
+    },
+    imagePlaceholder: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: PLACEHOLDER_COLOR,
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1,
+    },
+    imageError: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: '#f5f5f5',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1,
+    },
+    imageErrorIcon: {
+        fontSize: 48,
+        marginBottom: 8,
+    },
+    imageErrorText: {
+        fontSize: 12,
+        color: '#999',
     },
     closedBadge: {
         position: 'absolute',

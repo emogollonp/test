@@ -22,11 +22,18 @@ interface RestaurantListProps {
     emptyMessage?: string;
 }
 
+// Constants for FlatList optimization
+const ITEM_HEIGHT = 380; // Approx: 180px image + 200px content
+
 /**
  * Restaurant List Component
  *
- * Optimized FlatList for restaurant cards with:
- * - Efficient keyExtractor
+ * Highly optimized FlatList for restaurant cards with:
+ * - Efficient keyExtractor (stable, unique IDs)
+ * - getItemLayout for predictable heights (enables instant scrolling)
+ * - initialNumToRender optimized for viewport
+ * - windowSize tuned for memory/performance balance
+ * - removeClippedSubviews for native memory optimization
  * - onEndReached for infinite scroll
  * - Loading states (initial + load more)
  * - Empty state
@@ -34,8 +41,13 @@ interface RestaurantListProps {
  *
  * Performance optimizations:
  * - React.memo on RestaurantCard prevents unnecessary re-renders
- * - getItemLayout for consistent item heights (if known)
- * - maxToRenderPerBatch and updateCellsBatchingPeriod for smooth scrolling
+ * - useCallback for all render functions (prevents function recreation)
+ * - getItemLayout enables instant scrolling to any position
+ * - initialNumToRender: 8 (optimized for ~2 screens worth)
+ * - maxToRenderPerBatch: 5 (smaller batches = smoother UI)
+ * - windowSize: 7 (3.5 screens above/below = good balance)
+ * - updateCellsBatchingPeriod: 100ms (balanced responsiveness)
+ * - removeClippedSubviews: true (native optimization for offscreen views)
  */
 export const RestaurantList = React.memo<RestaurantListProps>(
     ({
@@ -113,20 +125,33 @@ export const RestaurantList = React.memo<RestaurantListProps>(
             }
         }, [hasMore, isLoadingMore, onLoadMore]);
 
+        const getItemLayout = React.useCallback(
+            (_: any, index: number) => ({
+                length: ITEM_HEIGHT,
+                offset: ITEM_HEIGHT * index,
+                index,
+            }),
+            []
+        );
+
         return (
             <FlatList
                 data={restaurants}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
+                getItemLayout={getItemLayout}
                 contentContainerStyle={styles.contentContainer}
                 ListEmptyComponent={renderEmpty}
                 ListFooterComponent={renderFooter}
                 onEndReached={handleEndReached}
                 onEndReachedThreshold={0.5}
-                maxToRenderPerBatch={10}
-                updateCellsBatchingPeriod={50}
+                initialNumToRender={8}
+                maxToRenderPerBatch={5}
+                updateCellsBatchingPeriod={100}
+                windowSize={7}
                 removeClippedSubviews={true}
-                windowSize={10}
+                disableVirtualization={false}
+                maintainVisibleContentPosition={undefined}
             />
         );
     }
