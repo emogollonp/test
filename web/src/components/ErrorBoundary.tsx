@@ -2,6 +2,7 @@ import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { errorTracker } from '@/lib/telemetry';
 
 interface ErrorBoundaryProps {
     children: React.ReactNode;
@@ -26,10 +27,10 @@ interface ErrorBoundaryState {
  * </ErrorBoundary>
  * ```
  *
- * In production, this would:
- * - Send error reports to Sentry/Bugsnag
- * - Log to error monitoring service
- * - Show user-friendly error message
+ * In production:
+ * - Sends error reports to Sentry
+ * - Logs to error monitoring service
+ * - Shows user-friendly error message
  */
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
     constructor(props: ErrorBoundaryProps) {
@@ -48,7 +49,15 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     }
 
     componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-        if (import.meta.env.DEV) {
+        // Report to error tracking service (Sentry)
+        errorTracker.captureException(error, {
+            component: 'ErrorBoundary',
+            extra: {
+                componentStack: errorInfo.componentStack,
+            },
+        });
+
+        if (import.meta.env?.MODE === 'development') {
             console.error('🚨 [ErrorBoundary] Caught an error:', error);
             console.error('Component stack:', errorInfo.componentStack);
         }
@@ -79,7 +88,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {import.meta.env.DEV && this.state.error && (
+                            {import.meta.env?.MODE === 'development' && this.state.error && (
                                 <details className="text-sm">
                                     <summary className="cursor-pointer font-medium mb-2 text-muted-foreground hover:text-foreground">
                                         Error details (development only)
@@ -116,7 +125,10 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
 export function useErrorHandler(): (error: Error) => void {
     return (error: Error) => {
-        if (import.meta.env.DEV) console.error('[useErrorHandler]', error);
+        errorTracker.captureException(error, {
+            component: 'useErrorHandler',
+        });
+        if (import.meta.env?.MODE === 'development') console.error('[useErrorHandler]', error);
         throw error;
     };
 }

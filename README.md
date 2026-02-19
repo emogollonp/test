@@ -170,6 +170,7 @@ Ver [docs/testing-plan.md](docs/testing-plan.md) para el plan completo de testin
 - [ADR-001: Estructura del proyecto y capas](docs/adr/ADR-001-project-structure.md)
 - [ADR-002: Server state + caching + estado global](docs/adr/ADR-002-state-management-caching.md)
 - [ADR-003: Feature Flags y Experiments](docs/ADR-003-feature-flags.md)
+- [ADR-004: Telemetry y Observability](docs/ADR-004-observability.md)
 
 ### Documentación adicional
 
@@ -204,6 +205,55 @@ Sistema de tracking provider-agnostic implementado:
 
 - 📖 [Guía Web](web/src/lib/tracking/README.md)
 - 📖 [Guía Mobile](mobile/src/lib/tracking/README.md)
+
+## Telemetry y Observability
+
+Sistema completo de observabilidad production-ready:
+
+- **Logger:** Logging estructurado con niveles (debug, info, warn, error)
+- **Error Tracker:** Captura de excepciones y crashes con contexto rico
+- **Metrics Tracker:** Performance metrics + business metrics
+- **Perceived Latency:** Métrica clave - tiempo desde acción hasta render
+
+### Stack de Herramientas
+
+**Web**:
+
+- Error tracking: **Sentry** (crashes, errors, session replay)
+- Metrics: **Datadog RUM** (performance, web vitals)
+- Error Boundary: React error boundary con reporte automático
+
+**Mobile**:
+
+- Crashes: **Firebase Crashlytics** (crash reports, ANRs)
+- Performance: **Firebase Performance Monitoring**
+- Analytics: **Firebase Analytics** (custom metrics)
+
+### SLOs y Thresholds
+
+#### Web
+
+| Métrica                            | Target   | Warning  | Critical |
+| ---------------------------------- | -------- | -------- | -------- |
+| **Perceived Latency (p95)**        | < 1000ms | > 1500ms | > 2500ms |
+| **Error Rate**                     | < 1%     | > 2%     | > 5%     |
+| **Error-Free Sessions**            | > 99.5%  | < 99%    | < 98%    |
+| **LCP (Largest Contentful Paint)** | < 2.5s   | > 3s     | > 4s     |
+
+#### Mobile
+
+| Métrica                     | Target   | Warning  | Critical |
+| --------------------------- | -------- | -------- | -------- |
+| **Perceived Latency (p95)** | < 1500ms | > 2000ms | > 3000ms |
+| **Error Rate**              | < 1%     | > 2%     | > 5%     |
+| **Crash-Free Sessions**     | > 99.9%  | < 99.5%  | < 99%    |
+| **App Start (cold, p95)**   | < 3s     | > 4s     | > 6s     |
+
+### Documentación
+
+- 📖 [Guía Web](web/src/lib/telemetry/README.md)
+- 📖 [Guía Mobile](mobile/src/lib/telemetry/README.md)
+- 📋 [ADR-004: Observability Architecture](docs/ADR-004-observability.md)
 
 ## Experimentos y Feature Flags
 
