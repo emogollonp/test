@@ -84,6 +84,14 @@ export type TrackingEvent =
               totalResults: number;
               resultsLoaded: number;
           };
+      }
+    | {
+          name: 'ExperimentExposed';
+          properties: {
+              experimentName: string;
+              variant: string;
+              exposedAt: string;
+          };
       };
 
 export interface UserIdentity {

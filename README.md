@@ -119,11 +119,10 @@ pnpm clean            # Limpia builds y caches
 
 - Fake API con simulación de latencia y errores
 - Multi-tenant, multi-país, multi-moneda (modelado)
-- Sistema de tracking de eventos
-- Feature flags y experimentos A/B
-- Capa de observabilidad (logs, métricas, errores)
+- Sistema de tracking provider-agnostic (6 proveedores soportados)
+- Feature flags y experimentos A/B client-side
 - Error boundaries y manejo de errores
-- Optimizaciones de performance
+- Optimizaciones de performance avanzadas
 
 ### Performance Web
 
@@ -170,7 +169,7 @@ Ver [docs/testing-plan.md](docs/testing-plan.md) para el plan completo de testin
 
 - [ADR-001: Estructura del proyecto y capas](docs/adr/ADR-001-project-structure.md)
 - [ADR-002: Server state + caching + estado global](docs/adr/ADR-002-state-management-caching.md)
-- [ADR-003: Observabilidad y tracking](docs/adr/ADR-003-observability-tracking.md)
+- [ADR-003: Feature Flags y Experiments](docs/ADR-003-feature-flags.md)
 
 ### Documentación adicional
 
@@ -191,24 +190,45 @@ El proyecto está diseñado con soporte para:
 
 Ver README de cada proyecto para detalles de implementación.
 
-## Observabilidad
+## Tracking de Eventos
 
-Sistema de observabilidad modular con:
+Sistema de tracking provider-agnostic implementado:
 
-- **Logging:** Niveles de log estructurados
-- **Métricas:** Latencia de API, performance de render
-- **Errores:** Error boundaries + reporting (preparado para Sentry/Crashlytics)
-- **Tracking:** Eventos de negocio (búsquedas, filtros, vistas)
-- **Experimentos:** Exposure tracking para A/B tests
+- **Arquitectura:** Capa de abstracción con tipo-safety completo
+- **Providers:** Console, Segment, Mixpanel, Amplitude, Google Analytics 4, Firebase
+- **Eventos:** Page views, clicks, búsquedas, filtros, experiment exposure
+- **Features:** Queue de eventos, retry automático, validación de schemas
+- **Configuración:** Multi-provider simultáneo con enable/disable individual
+
+### Documentación
+
+- 📖 [Guía Web](web/src/lib/tracking/README.md)
+- 📖 [Guía Mobile](mobile/src/lib/tracking/README.md)
 
 ## Experimentos y Feature Flags
 
-Sistema simple de A/B testing implementado:
+Sistema de A/B testing client-side sin dependencias externas:
 
-- Variante A: Card de restaurante compacta
-- Variante B: Card con información extendida
-- Asignación random con persistencia (localStorage/AsyncStorage)
-- Tracking de exposición para análisis
+- **Arquitectura:** Client-side random assignment con persistencia local
+- **Storage:** localStorage (web) + AsyncStorage (mobile)
+- **Tracking:** Eventos `ExperimentExposed` automáticos
+- **Type-safe:** Variants tipados en TypeScript
+- **Plataformas:** Implementaciones independientes web/mobile
+
+### Experimento Activo
+
+**`restaurant_card_variant`**
+
+- **Variante A (compact):** Card original compacta
+- **Variante B (extended):** Card extendida con más información
+- **Split:** 50/50 random assignment
+- **Objetivo:** Medir engagement (clicks, conversiones)
+
+### Documentación
+
+- 📖 [Guía Web](web/src/lib/experiments/README.md)
+- 📖 [Guía Mobile](mobile/src/lib/experiments/README.md)
+- 📋 [ADR-003: Feature Flags Architecture](docs/ADR-003-feature-flags.md)
 
 ## CI/CD (Propuesta)
 

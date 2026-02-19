@@ -86,6 +86,15 @@ export interface LoadMoreClickedEvent {
     };
 }
 
+export interface ExperimentExposedEvent {
+    name: 'ExperimentExposed';
+    properties: {
+        experimentName: string;
+        variant: string;
+        exposedAt: string;
+    };
+}
+
 export type TrackingEvent =
     | SearchPerformedEvent
     | FilterAppliedEvent
@@ -93,7 +102,8 @@ export type TrackingEvent =
     | RestaurantClickedEvent
     | RestaurantViewedEvent
     | PageViewedEvent
-    | LoadMoreClickedEvent;
+    | LoadMoreClickedEvent
+    | ExperimentExposedEvent;
 
 export interface UserIdentity {
     userId: string;

@@ -32,6 +32,14 @@ export type TrackingEvent =
               category: string;
               source: 'list' | 'search' | 'direct';
           };
+      }
+    | {
+          type: 'ExperimentExposed';
+          properties: {
+              experimentName: string;
+              variant: string;
+              exposedAt: string;
+          };
       };
 
 export type StoredTrackingEvent = TrackingEvent & {
@@ -80,14 +88,7 @@ async function storeEvent(event: StoredTrackingEvent) {
     }
 }
 
-/**
- * Core tracking function
- *
- * In development: Logs to console
- * In production: Would send to analytics service (Mixpanel, Amplitude, etc.)
- * Also stores in AsyncStorage for debugging
- */
-async function track(event: TrackingEvent): Promise<void> {
+export async function track(event: TrackingEvent): Promise<void> {
     const timestamp = new Date().toISOString();
     const sid = await getSessionId();
 
@@ -102,9 +103,6 @@ async function track(event: TrackingEvent): Promise<void> {
     if (__DEV__) console.log('[Tracking]', JSON.stringify(eventData, null, 2));
 
     await storeEvent(eventData);
-
-    // Production: Send to analytics service
-    // Example: await analytics.track(eventData);
 }
 
 export async function trackSearchPerformed(query: string, resultsCount: number): Promise<void> {
